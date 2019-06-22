@@ -2,8 +2,8 @@ const got = require("got");
 const htmlparser = require ("htmlparser2");
 const pages = {};
 const pagesWithKeyword = {};
-const samePageTest = {};
-let count = 0;
+// const samePageTest = {};
+// let count = 0;
 const initialTarget = "https://www.apple.com";
 let currentTarget = "";
 const maxDepth = 1;
@@ -17,7 +17,8 @@ const handleOpenTag= (name, attribs) => {
          pages[destination] = null;
       } else if (destination[0] === "/" && destination.length > 0 ) {
          pages[`${initialTarget}${destination}`] = null;
-      } else samePageTest[destination] = destination;
+      } 
+      // else samePageTest[destination] = destination;
 
    }
 }
@@ -63,7 +64,7 @@ const crawl = async (target, depth) => {
       //    );
       // }
       // await crawlers;
-      console.log("depth:",  depth);
+      // console.log("depth:",  depth);
       
    } catch (e) {
       // console.log(e && e.response && e.response.body);
@@ -72,9 +73,9 @@ const crawl = async (target, depth) => {
 
 const start = async () => {
    await crawl(initialTarget, 0);
-   console.log(Object.keys(pages).length);
-   console.log(Object.keys(samePageTest).length);
-   console.log(Object.keys(pagesWithKeyword).length);
+   console.log("pages crawled: ", Object.keys(pages).length);
+   // console.log(Object.keys(samePageTest).length);
+   console.log("pages with results: ", Object.keys(pagesWithKeyword).length);
    for (var key in pagesWithKeyword) {
       console.log(`${key} : ${pagesWithKeyword[key]}`)
    }
