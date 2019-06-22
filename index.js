@@ -24,7 +24,7 @@ const handleOpenTag= (name, attribs) => {
 
 const handleText = (text) => {
    const targetIndex = text.indexOf(keyWord);
-   if (currentDepth >=1 && targetIndex >=0 ) {
+   if (targetIndex >=0 ) {
       const startingPos = Math.max(0, targetIndex - 3);
       const endingPos = Math.min(text.length, targetIndex + keyWord.length + 3);
       pagesWithKeyword[currentTarget] = text.slice(startingPos, endingPos);
