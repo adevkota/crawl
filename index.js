@@ -42,11 +42,9 @@ const crawl = async (target, depth) => {
       /**
        * STEPS (possible approach): 
        * 1) find all links in this page in the same domain (and may be subdomain?)
-       * 2) save them in a array (or better some kind of a set) in format {link : html}
-       * 3) crawl each of those links to find more links that does not link back to the main site
-       * 4) repeat 1-3 for a given depth (start with depth = 2, i.e. repeat the steps 2 more times in addition) 
-       * 5) now that we have all the pages 2 levels deep with their respective content, loop through the array/set
-       *    and filter pages that has our target keyword.
+       * 2) save them in a object in format {link : null}
+       * 3) check if the current page has the target keyword. Save in a separate object in format {link : keyword}
+       * 4) crawl each of those links to find more links that does not link back to the main site
        */
       currentTarget = target;
       parser.write(response.body);
