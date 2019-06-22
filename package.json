@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/adevkota/crawl/issues"
   },
-  "homepage": "https://github.com/adevkota/crawl#readme"
+  "homepage": "https://github.com/adevkota/crawl#readme",
+  "dependencies": {
+    "got": "^9.6.0"
+  }
 }
