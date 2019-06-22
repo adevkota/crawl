@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/adevkota/crawl#readme",
   "dependencies": {
-    "got": "^9.6.0"
+    "got": "^9.6.0",
+    "htmlparser2": "^3.10.1"
   }
 }

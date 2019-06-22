@@ -1,7 +1,39 @@
 const got = require("got");
+const htmlparser = require ("htmlparser2");
+const pages = {};
+const pagesWithKeyword = {};
+const samePageTest = {};
+let count = 0;
+const initialTarget = "https://www.apple.com";
+let currentTarget = "";
+const maxDepth = 2;
+let currentDepth = 0;
+const keyWord = "reimagined"
 
-const target = "https://www.apple.com";
-const crawl = async () => {
+const handleOpenTag= (name, attribs) => {
+   if (name==="a") {
+      let destination = attribs.href;
+      if (destination.includes(currentTarget)) {
+         pages[destination] = null;
+      } else if (destination[0] === "/" ) {
+         pages[`${currentTarget}${destination}`] = null;
+      } else samePageTest[destination] = destination;
+
+   }
+}
+
+const handleText = (text) => {
+   if (currentDepth !== 0 && text.includes(keyWord)) {
+      pagesWithKeyword[currentTarget] = "bingo"
+   }
+}
+const parser = new htmlparser.Parser({
+   onopentag: handleOpenTag,
+   ontext: handleText
+})
+
+const crawl = async (target, depth) => {
+   currentDepth = depth;
    try {
       const response = await got(target);
       /**
@@ -13,11 +45,29 @@ const crawl = async () => {
        * 5) now that we have all the pages 2 levels deep with their respective content, loop through the array/set
        *    and filter pages that has our target keyword.
        */
-      console.log(response.body);
+      currentTarget = target;
+      parser.write(response.body);
+      parser.end();
+
+      if (depth < maxDepth) {
+         for (var key in pages) {
+            await crawl(key, depth + 1);
+         }
+      }
+      console.log("depth:",  depth);
+      
    } catch (e) {
-      console.log(e.response.body);
+      // console.log(e && e.response && e.response.body);
    }
 }
 
+const start = async () => {
+   await crawl(initialTarget, 0);
+   console.log(Object.keys(pages).length);
+   console.log(Object.keys(samePageTest).length);
+   for (var key in pages) {
+      console.log(pages[key])
+   }
+}
 
-crawl();
+start();
