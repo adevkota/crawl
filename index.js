@@ -3,19 +3,19 @@ const htmlparser = require ("htmlparser2");
 const pages = {};
 const pagesWithKeyword = {};
 // const samePageTest = {};
-// let count = 0;
+let errorCount = 0;
+const errorMap = {};
 const initialTarget = "https://www.apple.com";
 let currentTarget = "";
-const maxDepth = 1;
-let currentDepth = 0;
+const maxDepth = 2;
 const keyWord = "iPhone"
 
 const handleOpenTag= (name, attribs) => {
-   if (name==="a") {
-      let destination = attribs.href;
-      if (destination.includes(currentTarget) ) {
+   if (name==="a" && attribs.href) {
+      let destination = attribs.href.split("#")[0];
+      if (destination.includes(initialTarget) ) {
          pages[destination] = null;
-      } else if (destination[0] === "/" && destination.length > 0 ) {
+      } else if (destination[0] === "/" && destination.length > 1 ) {
          pages[`${initialTarget}${destination}`] = null;
       } 
       // else samePageTest[destination] = destination;
@@ -37,7 +37,6 @@ const parser = new htmlparser.Parser({
 })
 
 const crawl = async (target, depth) => {
-   currentDepth = depth;
    try {
       const response = await got(target);
       /**
@@ -50,24 +49,26 @@ const crawl = async (target, depth) => {
       currentTarget = target;
       parser.write(response.body);
       parser.end();
-      if (depth < maxDepth) {
-         for (let key in pages) {
-            await crawl(key, depth + 1);
-         }
-      }
-
       // if (depth < maxDepth) {
-      //    const crawlers = Promise.all(
-      //       Object.keys(pages).map(async page => {
-      //             crawl(page, depth + 1);
-      //       })
-      //    );
+      //    console.log(Object.keys(pages).length);
+      //    for (let key in pages) {
+      //       await crawl(key, depth + 1);
+      //    }
       // }
-      // await crawlers;
-      // console.log("depth:",  depth);
+      
+      if (depth < maxDepth) {
+         console.log(Object.keys(pages).length);
+         const crawlers = Promise.all(
+            Object.keys(pages).map(async page => {
+                  await crawl(page, depth + 1);
+            })
+         );
+         await crawlers;
+      }
       
    } catch (e) {
-      // console.log(e && e.response && e.response.body);
+      errorCount ++;
+      errorMap[currentTarget] = e;
    }
 }
 
@@ -76,6 +77,7 @@ const start = async () => {
    console.log("pages crawled: ", Object.keys(pages).length);
    // console.log(Object.keys(samePageTest).length);
    console.log("pages with results: ", Object.keys(pagesWithKeyword).length);
+   console.log("error", errorCount)
    for (var key in pagesWithKeyword) {
       console.log(`${key} : ${pagesWithKeyword[key]}`)
    }
