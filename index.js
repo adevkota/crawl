@@ -15,8 +15,8 @@ const handleOpenTag= (name, attribs) => {
       let destination = attribs.href;
       if (destination.includes(currentTarget) ) {
          pages[destination] = null;
-      } else if (destination[0] === "/"  ) {
-         pages[`${currentTarget}${destination}`] = null;
+      } else if (destination[0] === "/" && destination.length > 0 ) {
+         pages[`${initialTarget}${destination}`] = null;
       } else samePageTest[destination] = destination;
 
    }
@@ -51,12 +51,20 @@ const crawl = async (target, depth) => {
       currentTarget = target;
       parser.write(response.body);
       parser.end();
-
       if (depth < maxDepth) {
          for (let key in pages) {
             await crawl(key, depth + 1);
          }
       }
+
+      // if (depth < maxDepth) {
+      //    const crawlers = Promise.all(
+      //       Object.keys(pages).map(async page => {
+      //             crawl(page, depth + 1);
+      //       })
+      //    );
+      // }
+      // await crawlers;
       console.log("depth:",  depth);
       
    } catch (e) {
