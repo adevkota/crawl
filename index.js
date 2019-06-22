@@ -6,16 +6,16 @@ const samePageTest = {};
 let count = 0;
 const initialTarget = "https://www.apple.com";
 let currentTarget = "";
-const maxDepth = 2;
+const maxDepth = 1;
 let currentDepth = 0;
-const keyWord = "reimagined"
+const keyWord = "iPhone"
 
 const handleOpenTag= (name, attribs) => {
    if (name==="a") {
       let destination = attribs.href;
-      if (destination.includes(currentTarget)) {
+      if (destination.includes(currentTarget) ) {
          pages[destination] = null;
-      } else if (destination[0] === "/" ) {
+      } else if (destination[0] === "/"  ) {
          pages[`${currentTarget}${destination}`] = null;
       } else samePageTest[destination] = destination;
 
@@ -23,8 +23,11 @@ const handleOpenTag= (name, attribs) => {
 }
 
 const handleText = (text) => {
-   if (currentDepth !== 0 && text.includes(keyWord)) {
-      pagesWithKeyword[currentTarget] = "bingo"
+   const targetIndex = text.indexOf(keyWord);
+   if (currentDepth >=1 && targetIndex >=0 ) {
+      const startingPos = Math.max(0, targetIndex - 3);
+      const endingPos = Math.min(text.length, targetIndex + keyWord.length + 3);
+      pagesWithKeyword[currentTarget] = text.slice(startingPos, endingPos);
    }
 }
 const parser = new htmlparser.Parser({
@@ -50,7 +53,7 @@ const crawl = async (target, depth) => {
       parser.end();
 
       if (depth < maxDepth) {
-         for (var key in pages) {
+         for (let key in pages) {
             await crawl(key, depth + 1);
          }
       }
@@ -65,8 +68,9 @@ const start = async () => {
    await crawl(initialTarget, 0);
    console.log(Object.keys(pages).length);
    console.log(Object.keys(samePageTest).length);
-   for (var key in pages) {
-      console.log(pages[key])
+   console.log(Object.keys(pagesWithKeyword).length);
+   for (var key in pagesWithKeyword) {
+      console.log(`${key} : ${pagesWithKeyword[key]}`)
    }
 }
 
